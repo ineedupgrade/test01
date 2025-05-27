@@ -24,11 +24,6 @@
       font-size: 16px;
       cursor: pointer;
     }
-    #coords {
-      font-weight: bold;
-      color: #0070f3;
-      cursor: pointer;
-    }
   </style>
 
   <!-- 네이버 지도 API -->
@@ -41,13 +36,13 @@
       "성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대",
       "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
       "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
-      "국가대표", "청대불고기", "지지고청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
-      "청주이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
+      "국가대표", "청대불고기", "지지고 청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
+      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
     ];
 
     function initMap() {
       map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(36.6505, 127.4926),  // 신한은행 기준 서쪽 약 400m
+        center: new naver.maps.LatLng(36.6505, 127.4926),  // 초기 위치 (청주대 주변)
         zoom: 17
       });
     }
@@ -55,12 +50,14 @@
     async function pickRandomRestaurant() {
       const index = Math.floor(Math.random() * names.length);
       const name = names[index];
+      console.log("선택된 식당 이름:", name); // 디버깅용
 
       const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(name)}`;
 
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
+        console.log("검색 결과:", data); // 디버깅용
 
         const place = data.items?.[0];
         if (!place) {
@@ -77,16 +74,15 @@
           <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
           ${place.roadAddress || place.address}<br>
         `;
-  
+
         if (marker) marker.setMap(null);
         marker = new naver.maps.Marker({
           position: latlng,
           map: map,
           title: place.title
         });
-        
-        // 지도 중심 부드럽게 이동 
-        map.panTo(latlng);
+
+        map.panTo(latlng); // 지도 이동
       } catch (err) {
         console.error("API 호출 오류:", err);
         alert("API 호출 중 오류가 발생했습니다.");
@@ -97,13 +93,18 @@
     window.navermap_authFailure = function () {
       alert("네이버 지도 API 인증 실패. 키 또는 도메인 설정을 확인하세요.");
     };
+
+    // DOM 로딩 완료 후 실행
+    window.onload = function () {
+      initMap();
+      document.getElementById("recommendBtn").addEventListener("click", pickRandomRestaurant);
+    };
   </script>
 </head>
-<body onload="initMap()">
+<body>
   <div id="info">
-    <button id="recommendBtn" onclick="pickRandomRestaurant()">오늘 뭐 먹지? 🍽️</button>
+    <button id="recommendBtn">오늘 1뭐 먹지? 🍽️</button>
     <p id="result">버튼을 눌러 학식을 추천받아보세요!</p>
-    
   </div>
   <div id="map"></div>
 </body>
