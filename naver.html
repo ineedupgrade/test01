@@ -26,18 +26,20 @@
     }
   </style>
 
-  <!-- 네이버 지도 API -->
+  <!-- 네이버 지도 API (지도 띄우기용) -->
   <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=8rfkydvkaa"></script>
 
   <script>
     let map, marker;
 
+    // 추천 대상 식당 이름 목록
     const names = [
       "청림식당",
       "고봉민김밥 청주대점",
       "스시유메 청주대점"
     ];
 
+    // 지도 초기화
     function initMap() {
       map = new naver.maps.Map('map', {
         center: new naver.maps.LatLng(36.6285, 127.4570),
@@ -45,11 +47,11 @@
       });
     }
 
+    // 랜덤 추천 및 장소 검색
     async function pickRandomRestaurant() {
       const index = Math.floor(Math.random() * names.length);
       const name = names[index];
 
-      // 너의 Vercel API 배포 주소로 수정할 것
       const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(name)}`;
 
       try {
@@ -73,7 +75,7 @@
           전화번호: ${place.telephone || "없음"}
         `;
 
-        // 마커 표시
+        // 마커 업데이트
         if (marker) marker.setMap(null);
         marker = new naver.maps.Marker({
           position: latlng,
@@ -88,8 +90,9 @@
       }
     }
 
+    // 지도 인증 실패 콜백
     window.navermap_authFailure = function () {
-      alert("네이버 지도 API 인증 실패. 키 또는 도메인 설정 확인!");
+      alert("네이버 지도 API 인증에 실패했습니다. 키 또는 도메인 설정을 확인하세요.");
     };
   </script>
 </head>
