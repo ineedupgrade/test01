@@ -76,8 +76,8 @@
 
     function renderMarker() {
       if (!lastPlace) return;
-      const rawMapX = item.mapx;
-      const rawMapY = item.mapy;
+      const rawMapX = lastPlace.mapx;
+      const rawMapY = lastPlace.mapy;
       const lng = parseFloat(rawMapX) / 1e7;
       const lat = parseFloat(rawMapY) / 1e7;
       const latlng = new naver.maps.LatLng(lat, lng);
@@ -93,9 +93,7 @@
 
       document.getElementById("result").innerHTML = `
         <strong>${lastPlace.title.replace(/<[^>]+>/g, '')}</strong><br>
-        ${lastPlace.roadAddress || lastPlace.address || ''}<br>
-        전화번호: ${lastPlace.telephone || '없음'}
-      `;
+        ${lastPlace.roadAddress || lastPlace.address || ''}`;
     }
 
     window.navermap_authFailure = function () {
@@ -110,7 +108,7 @@
 </head>
 <body>
   <div id="info">
-    <button id="recommendBtn">오늘 뭐 먹지? 🍽️</button>
+    <button id="recommendBtn">오늘1 뭐 먹지? 🍽️</button>
     <p id="result">버튼을 눌러 학식을 추천받아보세요!</p>
   </div>
   <div id="map"></div>
