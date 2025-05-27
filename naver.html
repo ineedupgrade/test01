@@ -16,7 +16,7 @@
     }
     #map {
       width: 100%;
-      height: 90%;
+      height: 85%;
     }
     #recommendBtn {
       padding: 10px 20px;
@@ -24,56 +24,34 @@
       font-size: 16px;
       cursor: pointer;
     }
+    #coords {
+      font-weight: bold;
+      color: #0070f3;
+      cursor: pointer;
+    }
   </style>
 
-  <!-- 네이버 지도 API (지도 띄우기용) -->
+  <!-- 네이버 지도 API -->
   <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=8rfkydvkaa"></script>
 
   <script>
     let map, marker;
 
-    // 추천 대상 식당 이름 목록
     const names = [
-      "성진식당",
-      "맘스터치 청주대점",
-      "면식당",
-      "쇼킹청주대점",
-      "돈사무소",
-      "백미순대",
-      "청대얼큰이칼국수쭈꾸미",
-      "인생부대찌개",
-      "청춘덮밥",
-      "아르떼청주대점",
-      "유가네닭갈비 청주우암점",
-      "수암정",
-      "자연을담은돈까스 본점",
-      "한신우동 청주대점",
-      "봉득식당",
-      "부활식당",
-      "국가대표",
-      "청대불고기",
-      "지지고",
-      "마라퀸",
-      "믹스토랑 청주대점",
-      "버거운버거 청주대점",
-      "청주이쉐프컵밥",
-      "신전떡볶이 우암점",
-      "짬뽕의맛",
-      "원조청주수육국밥",
-      "서씨세끼",
-      "무스비야",
-      "86카츠"
+      "성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대",
+      "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
+      "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
+      "국가대표", "청대불고기", "지지고청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
+      "청주이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
     ];
 
-    // 지도 초기화
     function initMap() {
       map = new naver.maps.Map('map', {
-      center: new naver.maps.LatLng(36.6505,127.4926),
-      zoom: 17
+        center: new naver.maps.LatLng(36.6505, 127.4926),  // 신한은행 기준 서쪽 약 400m
+        zoom: 17
       });
     }
 
-    // 랜덤 추천 및 장소 검색
     async function pickRandomRestaurant() {
       const index = Math.floor(Math.random() * names.length);
       const name = names[index];
@@ -98,8 +76,8 @@
         document.getElementById("result").innerHTML = `
           <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
           ${place.roadAddress || place.address}<br>
-          전화번호: ${place.telephone || "없음"}
         `;
+        document.getElementById("coords").innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
         // 마커 업데이트
         if (marker) marker.setMap(null);
@@ -116,9 +94,17 @@
       }
     }
 
-    // 지도 인증 실패 콜백
+    // 좌표 클릭 시 클립보드 복사
+    function copyCoords() {
+      const coords = document.getElementById("coords").innerText;
+      navigator.clipboard.writeText(coords).then(() => {
+        alert("좌표가 클립보드에 복사되었습니다!");
+      });
+    }
+
+    // 네이버 지도 인증 실패 콜백
     window.navermap_authFailure = function () {
-      alert("네이버 지도 API 인증에 실패했습니다. 키 또는 도메인 설정을 확인하세요.");
+      alert("네이버 지도 API 인증 실패. 키 또는 도메인 설정을 확인하세요.");
     };
   </script>
 </head>
@@ -126,6 +112,7 @@
   <div id="info">
     <button id="recommendBtn" onclick="pickRandomRestaurant()">오늘 뭐 먹지? 🍽️</button>
     <p id="result">버튼을 눌러 학식을 추천받아보세요!</p>
+    <p>📍 좌표: <span id="coords" onclick="copyCoords()">-</span></p>
   </div>
   <div id="map"></div>
 </body>
