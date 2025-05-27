@@ -77,7 +77,6 @@
           <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
           ${place.roadAddress || place.address}<br>
         `;
-        document.getElementById("coords").innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
   
         if (marker) marker.setMap(null);
         marker = new naver.maps.Marker({
