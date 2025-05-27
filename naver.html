@@ -37,7 +37,7 @@
       "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
       "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
       "국가대표", "청대불고기", "지지고 청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
-      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
+      "청주이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
     ];
 
     function initMap() {
@@ -80,8 +80,7 @@
 
         document.getElementById("result").innerHTML = `
           <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
-          ${place.roadAddress || place.address || ''}<br>
-          전화번호: ${place.telephone || '없음'}
+          ${place.roadAddress || place.address || ''}
         `;
       } catch (err) {
         console.error("API 호출 오류:", err);
