@@ -1,38 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>청주대 학식 랜덤 추천</title>
   <style>
     html, body {
       height: 100%;
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
     }
+
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
     #info {
-      padding: 10px;
-      background-color: #f8f8f8;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      padding: 20px 16px;
       text-align: center;
     }
-    #map {
-      width: 100%;
-      height: 85%;
-    }
+
     #recommendBtn {
-      padding: 20px 40px;
-      margin-top: 10px;
-      font-size: 24px;
+      padding: 16px 32px;
+      font-size: 18px;
       font-weight: bold;
-      background-color: #0070f3;
-      color: white;
       border: none;
       border-radius: 12px;
+      background-color: #0070f3;
+      color: white;
       cursor: pointer;
-      transition: background-color 0.2s;
+      width: 100%;
     }
-  
-    #recommendBtn:hover {
+
+    #recommendBtn:active {
       background-color: #0059c1;
+    }
+
+    #result {
+      margin-top: 12px;
+      font-size: 16px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #000; color: #fff; }
+      #info { background-color: #111; color: #fff; }
+      #recommendBtn { background-color: #1e90ff; }
     }
   </style>
 
@@ -41,87 +65,62 @@
 
   <script>
     let map, marker;
-    let lastPicked = null;  // 최근 선택한 식당 이름
-    let lastPlace = null;   // 최근 받아온 장소 정보
+    let lastPicked = null;
+    let lastPlace = null;
 
-    const names = [
-      "성진식당", "맘스터치 청주대점", "면식당청주대점", "쇼킹청주대점", "청주 돈사무소", "청주 백미순대",
-      "청대얼큰이칼국수쭈꾸미", "청주 인생부대찌개", "청주청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
-      "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "청주부활식당",
-      "청주국가대표", "청대불고기", "지지고 청주대점", "마라퀸우암점", "믹스토랑 청주대점", "버거운버거 청주대점",
-      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
-    ];
+    const names = ["성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대", "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점"];
 
     function initMap() {
       map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(36.6528, 127.4938),
-        zoom: 19
+        center: new naver.maps.LatLng(36.6505, 127.4926),
+        zoom: 17
       });
     }
 
     async function pickRandomRestaurant() {
       const index = Math.floor(Math.random() * names.length);
-      lastPicked = names[index]; // 최근 선택된 식당 저장
-      console.log("선택된 식당 이름:", lastPicked);
-
+      lastPicked = names[index];
       const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(lastPicked)}`;
 
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        console.log("API 응답:", data);
-
-        lastPlace = data.items?.[0]; // 최근 장소 정보 저장
-        if (!lastPlace) {
-          alert("장소 정보를 찾을 수 없습니다.");
-          return;
-        }
-
-        renderMarker(); // 마커 표시 및 정보 출력
+        lastPlace = data.items?.[0];
+        if (!lastPlace) return alert("장소 정보를 찾을 수 없습니다.");
+        renderMarker();
       } catch (err) {
-        console.error("API 호출 오류:", err);
         alert("API 호출 중 오류가 발생했습니다.");
       }
     }
 
     function renderMarker() {
-      if (!lastPlace) return;
-      const rawMapX = lastPlace.mapx;
-      const rawMapY = lastPlace.mapy;
-      const lng = parseFloat(rawMapX) / 1e7;
-      const lat = parseFloat(rawMapY) / 1e7;
+      const lat = parseFloat(lastPlace.mapy) / 1e7;
+      const lng = parseFloat(lastPlace.mapx) / 1e7;
       const latlng = new naver.maps.LatLng(lat, lng);
 
       if (marker) marker.setMap(null);
-      marker = new naver.maps.Marker({
-        position: latlng,
-        map: map,
-        title: lastPlace.title
-      });
-
+      marker = new naver.maps.Marker({ position: latlng, map: map });
       map.panTo(latlng);
 
       document.getElementById("result").innerHTML = `
         <strong>${lastPlace.title.replace(/<[^>]+>/g, '')}</strong><br>
         ${lastPlace.roadAddress || lastPlace.address || ''}<br>
-        주메뉴: ${lastPlace.category || '없음'}`;
+        전화번호: ${lastPlace.telephone || '없음'}
+      `;
     }
 
-    window.navermap_authFailure = function () {
-      alert("네이버 지도 API 인증 실패. 키 또는 도메인 설정을 확인하세요.");
-    };
-
-    window.onload = function () {
+    window.onload = () => {
       initMap();
       document.getElementById("recommendBtn").addEventListener("click", pickRandomRestaurant);
     };
   </script>
 </head>
 <body>
+  <div id="map"></div>
+
   <div id="info">
     <button id="recommendBtn">오늘 뭐 먹지? 🍽️</button>
     <p id="result">버튼을 눌러 학식을 추천받아보세요!</p>
   </div>
-  <div id="map"></div>
 </body>
 </html>
