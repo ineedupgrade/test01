@@ -32,46 +32,35 @@
   <script>
     let map, marker;
 
-    const names = [
-      "성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대",
-      "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
-      "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
-      "국가대표", "청대불고기", "지지고 청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
-      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
-    ];
+    const names = [/* 식당 리스트 생략 가능 */];
 
     function initMap() {
       map = new naver.maps.Map('map', {
-        center: new naver.maps.LatLng(36.6505, 127.4926),  // 초기 위치 (청주대 주변)
+        center: new naver.maps.LatLng(36.6505, 127.4926),
         zoom: 17
       });
     }
 
     async function pickRandomRestaurant() {
-     const latlng = new naver.maps.LatLng(36.648216, 127.497213); // 청주대학교 정문 근처 좌표
+      const latlng = new naver.maps.LatLng(36.648216, 127.497213); // 청주대학교 정문 근처
 
-    // 이전 마커 삭제
-    if (marker) marker.setMap(null);
+      if (marker) marker.setMap(null);
 
-    // 새 마커 표시
-    marker = new naver.maps.Marker({
-      position: latlng,
-      map: map,
-      title: "테스트 마커"
-    });
+      marker = new naver.maps.Marker({
+        position: latlng,
+        map: map,
+        title: "테스트 마커"
+      });
 
-    // 지도 중심 이동
-    map.panTo(latlng);
+      map.panTo(latlng);
 
-    // 결과 출력
-    document.getElementById("result").innerHTML = "✅ 테스트 마커가 성공적으로 표시되었습니다.";
-  }
-    // 네이버 지도 인증 실패 콜백
+      document.getElementById("result").innerHTML = "✅ 테스트 마커가 성공적으로 표시되었습니다.";
+    }
+
     window.navermap_authFailure = function () {
       alert("네이버 지도 API 인증 실패. 키 또는 도메인 설정을 확인하세요.");
     };
 
-    // DOM 로딩 완료 후 실행
     window.onload = function () {
       initMap();
       document.getElementById("recommendBtn").addEventListener("click", pickRandomRestaurant);
@@ -80,7 +69,7 @@
 </head>
 <body>
   <div id="info">
-    <button id="recommendBtn">오늘 1뭐 먹지? 🍽️</button>
+    <button id="recommendBtn">오늘 뭐 먹지? 🍽️</button>
     <p id="result">버튼을 눌러 학식을 추천받아보세요!</p>
   </div>
   <div id="map"></div>
