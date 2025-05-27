@@ -32,7 +32,13 @@
   <script>
     let map, marker;
 
-    const names = [/* 식당 리스트 생략 가능 */];
+    const names = [
+      "성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대",
+      "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
+      "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
+      "국가대표", "청대불고기", "지지고 청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
+      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
+    ];
 
     function initMap() {
       map = new naver.maps.Map('map', {
@@ -42,19 +48,45 @@
     }
 
     async function pickRandomRestaurant() {
-      const latlng = new naver.maps.LatLng(36.648216, 127.497213); // 청주대학교 정문 근처
+      const index = Math.floor(Math.random() * names.length);
+      const name = names[index];
+      console.log("선택된 식당 이름:", name);
 
-      if (marker) marker.setMap(null);
+      const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(name)}`;
 
-      marker = new naver.maps.Marker({
-        position: latlng,
-        map: map,
-        title: "테스트 마커"
-      });
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        console.log("검색 결과:", data);
 
-      map.panTo(latlng);
+        const place = data.items?.[0];
+        if (!place) {
+          alert("장소 정보를 찾을 수 없습니다.");
+          return;
+        }
 
-      document.getElementById("result").innerHTML = "✅ 테스트 마커가 성공적으로 표시되었습니다.";
+        const lat = parseFloat(place.mapy);
+        const lng = parseFloat(place.mapx);
+        const latlng = new naver.maps.LatLng(lat, lng);
+
+        if (marker) marker.setMap(null);
+        marker = new naver.maps.Marker({
+          position: latlng,
+          map: map,
+          title: place.title
+        });
+
+        map.panTo(latlng);
+
+        document.getElementById("result").innerHTML = `
+          <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
+          ${place.roadAddress || place.address || ''}<br>
+          전화번호: ${place.telephone || '없음'}
+        `;
+      } catch (err) {
+        console.error("API 호출 오류:", err);
+        alert("API 호출 중 오류가 발생했습니다.");
+      }
     }
 
     window.navermap_authFailure = function () {
