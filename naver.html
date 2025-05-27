@@ -79,21 +79,20 @@
         `;
         document.getElementById("coords").innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
   
-        // 마커 업데이트
         if (marker) marker.setMap(null);
         marker = new naver.maps.Marker({
           position: latlng,
           map: map,
           title: place.title
         });
-
-        map.setCenter(latlng);
+        
+        // 지도 중심 부드럽게 이동 
+        map.panTo(latlng);
       } catch (err) {
         console.error("API 호출 오류:", err);
         alert("API 호출 중 오류가 발생했습니다.");
       }
     }
-        map.setCenter(latlng);
 
     // 네이버 지도 인증 실패 콜백
     window.navermap_authFailure = function () {
