@@ -31,13 +31,15 @@
 
   <script>
     let map, marker;
+    let lastPicked = null;  // 최근 선택한 식당 이름
+    let lastPlace = null;   // 최근 받아온 장소 정보
 
     const names = [
       "성진식당", "맘스터치 청주대점", "면식당", "쇼킹청주대점", "돈사무소", "백미순대",
       "청대얼큰이칼국수쭈꾸미", "인생부대찌개", "청춘덮밥", "아르떼청주대점", "유가네닭갈비 청주우암점",
       "수암정", "자연을담은돈까스 본점", "한신우동 청주대점", "봉득식당", "부활식당",
       "국가대표", "청대불고기", "지지고 청주대점", "마라퀸", "믹스토랑 청주대점", "버거운버거 청주대점",
-      "청주이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
+      "청주 이쉐프컵밥", "신전떡볶이 우암점", "짬뽕의맛", "원조청주수육국밥", "서씨세끼", "무스비야", "86카츠"
     ];
 
     function initMap() {
@@ -49,43 +51,50 @@
 
     async function pickRandomRestaurant() {
       const index = Math.floor(Math.random() * names.length);
-      const name = names[index];
-      console.log("선택된 식당 이름:", name);
+      lastPicked = names[index]; // 최근 선택된 식당 저장
+      console.log("선택된 식당 이름:", lastPicked);
 
-      const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(name)}`;
+      const API_URL = `https://naver-search-api.vercel.app/api/search?query=${encodeURIComponent(lastPicked)}`;
 
       try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        console.log("검색 결과:", data);
+        console.log("API 응답:", data);
 
-        const place = data.items?.[0];
-        if (!place) {
+        lastPlace = data.items?.[0]; // 최근 장소 정보 저장
+        if (!lastPlace) {
           alert("장소 정보를 찾을 수 없습니다.");
           return;
         }
 
-        const lat = parseFloat(place.mapy);
-        const lng = parseFloat(place.mapx);
-        const latlng = new naver.maps.LatLng(lat, lng);
-
-        if (marker) marker.setMap(null);
-        marker = new naver.maps.Marker({
-          position: latlng,
-          map: map,
-          title: place.title
-        });
-
-        map.panTo(latlng);
-
-        document.getElementById("result").innerHTML = `
-          <strong>${place.title.replace(/<[^>]+>/g, '')}</strong><br>
-          ${place.roadAddress || place.address || ''}
-        `;
+        renderMarker(); // 마커 표시 및 정보 출력
       } catch (err) {
         console.error("API 호출 오류:", err);
         alert("API 호출 중 오류가 발생했습니다.");
       }
+    }
+
+    function renderMarker() {
+      if (!lastPlace) return;
+
+      const lat = parseFloat(lastPlace.mapy);
+      const lng = parseFloat(lastPlace.mapx);
+      const latlng = new naver.maps.LatLng(lat, lng);
+
+      if (marker) marker.setMap(null);
+      marker = new naver.maps.Marker({
+        position: latlng,
+        map: map,
+        title: lastPlace.title
+      });
+
+      map.panTo(latlng);
+
+      document.getElementById("result").innerHTML = `
+        <strong>${lastPlace.title.replace(/<[^>]+>/g, '')}</strong><br>
+        ${lastPlace.roadAddress || lastPlace.address || ''}<br>
+        전화번호: ${lastPlace.telephone || '없음'}
+      `;
     }
 
     window.navermap_authFailure = function () {
