@@ -115,7 +115,7 @@
       document.getElementById("result").innerHTML = `
         <strong>${lastPlace.title.replace(/<[^>]+>/g, '')}</strong><br>
         ${lastPlace.roadAddress || lastPlace.address || ''}<br>
-        전화번호: ${lastPlace.telephone || '없음'}
+        음식카테고리: ${lastPlace.category || '없음'}
       `;
     }
 
